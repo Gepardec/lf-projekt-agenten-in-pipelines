@@ -1,0 +1,6 @@
+[
+  {
+    "name": "ArgoCD",
+    "feed_url": "https://github.com/argoproj/argo-cd/releases.atom"
+  }
+]
