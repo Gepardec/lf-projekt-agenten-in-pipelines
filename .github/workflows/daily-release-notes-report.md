@@ -1,0 +1,72 @@
+---
+emoji: "📰"
+description: Daily release notes digest from feeds listed in inventory.json
+on:
+  schedule:
+    - cron: "15 6 * * *"
+  workflow_dispatch:
+permissions:
+  contents: read
+  issues: read
+  pull-requests: read
+tools:
+  github:
+    mode: gh-proxy
+    toolsets: [default]
+network:
+  allowed:
+    - defaults
+    - github
+safe-outputs:
+  mentions: false
+  allowed-github-references: []
+  max-bot-mentions: 1
+  create-issue:
+    title-prefix: "Daily Release Notes:"
+    labels: [report, release-notes]
+    close-older-issues: true
+    expires: 30
+---
+
+# Daily Release Notes Report
+
+## Task
+
+Create one daily issue summarizing release notes from all feeds listed in `inventory.json`.
+
+Use this report window:
+- last 24 full hours ending at workflow start (UTC)
+
+Process:
+1. Read `inventory.json` from repository root.
+2. For each item, fetch `feed_url` (RSS or Atom) and parse entries.
+3. Keep only entries published in the report window.
+4. Build one consolidated report issue.
+
+If no entries are found in the window across all feeds, call:
+- `noop("No release updates in last 24 full hours (<window_start_utc> to <window_end_utc>)")`
+
+## Output Requirements
+
+Use GitHub-flavored Markdown.
+
+Structure:
+- `### Overview`
+- `### Breaking Changes`
+- `### New Features`
+- `### Feed Summaries`
+- `### References`
+
+Rules:
+- Use `###` for sections and `####` for subsections.
+- Keep critical items visible and place long details in `<details><summary>...</summary>` blocks.
+- In `### Breaking Changes`, include only items explicitly marked as breaking, incompatible, migration-required, or equivalent wording. If none, state that clearly.
+- In `### New Features`, include net-new capabilities and enhancements.
+- In `### Feed Summaries`, group by feed `name` from `inventory.json`.
+- Include source links for each summarized release entry.
+- Include run reference links in this format: `[§<run_id>](https://github.com/<owner>/<repo>/actions/runs/<run_id>)`.
+
+## Safe Outputs
+
+- Publish the report using configured `create-issue` safe output.
+- Use `noop` when there are no updates in the window.
