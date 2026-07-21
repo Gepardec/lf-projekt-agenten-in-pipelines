@@ -2,13 +2,16 @@
 emoji: "📰"
 description: Daily release notes digest from feeds listed in inventory.json
 on:
-  schedule:
-    - cron: "15 6 * * *"
+  # schedule:
+  #   - cron: "15 6 * * *"
   workflow_dispatch:
 permissions:
   contents: read
   issues: read
   pull-requests: read
+engine:
+  id: copilot
+  model: gpt-4
 tools:
   github:
     mode: gh-proxy
@@ -35,7 +38,7 @@ safe-outputs:
 Create one daily issue summarizing release notes from all feeds listed in `inventory.json`.
 
 Use this report window:
-- last 24 full hours ending at workflow start (UTC)
+- last two weeks ending at workflow start (UTC)
 
 Process:
 1. Read `inventory.json` from repository root.
@@ -44,7 +47,7 @@ Process:
 4. Build one consolidated report issue.
 
 If no entries are found in the window across all feeds, call:
-- `noop("No release updates in last 24 full hours (<window_start_utc> to <window_end_utc>)")`
+- `noop("No release updates in the last two weeks (<window_start_utc> to <window_end_utc>)")`
 
 ## Output Requirements
 
