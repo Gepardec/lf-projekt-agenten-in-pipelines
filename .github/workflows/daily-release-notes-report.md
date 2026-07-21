@@ -2,8 +2,8 @@
 emoji: "📰"
 description: Daily release notes digest from feeds listed in inventory.json
 on:
-  schedule:
-    - cron: "15 6 * * *"
+  # schedule:
+  #   - cron: "15 6 * * *"
   workflow_dispatch:
 permissions:
   contents: read
