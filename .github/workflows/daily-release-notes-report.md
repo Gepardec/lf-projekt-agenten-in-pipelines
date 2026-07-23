@@ -75,5 +75,5 @@ Rules:
 ## Safe Outputs
 
 - Publish the report using configured `create-issue` safe output.
-- Use the `google-chat-notify` safe output to send a message to Google Chat with a link to the issue and a summary of the release notes.
+- After creating the issue, call `google_chat_notify` with a required `message` input containing a concise Google Chat-ready summary and the issue URL.
 - Use `noop` when there are no updates in the window.
