@@ -9,6 +9,8 @@ permissions:
   contents: read
   issues: read
   pull-requests: read
+imports:
+  - shared/send-google-chat.md
 engine:
   id: copilot
   model: gpt-4
@@ -45,6 +47,7 @@ Process:
 2. For each item, fetch `feed_url` (RSS or Atom) and parse entries.
 3. Keep only entries published in the report window.
 4. Build one consolidated report issue.
+5. Post a well formatted message to Google Chat with a link to the issue and a summary of the release notes, grouped by the technology.
 
 If no entries are found in the window across all feeds, call:
 - `noop("No release updates in the last two weeks (<window_start_utc> to <window_end_utc>)")`
@@ -72,4 +75,5 @@ Rules:
 ## Safe Outputs
 
 - Publish the report using configured `create-issue` safe output.
+- Use the `google-chat-notify` safe output to send a message to Google Chat with a link to the issue and a summary of the release notes.
 - Use `noop` when there are no updates in the window.
