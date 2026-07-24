@@ -37,7 +37,7 @@ safe-outputs:
 
 ## Task
 
-Create one daily issue summarizing release notes from all feeds listed in `inventory.json`.
+Create one daily issue summarizing release notes from all feeds listed in `inventory.json`. Consider also version bumps, breaking changes, and new features. Post a summary to Google Chat with a link to the issue.
 
 Use this report window:
 - last two weeks ending at workflow start (UTC)
