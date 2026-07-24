@@ -75,7 +75,7 @@ def main():
         try:
             result = subprocess.run(
                 ["junie"],
-                input=combined_prompt
+                input=combined_prompt,
                 capture_output=True,
                 text=True,
                 check=True,
