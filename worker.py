@@ -79,7 +79,6 @@ def main():
                 capture_output=True,
                 text=True,
                 check=True,
-                env=process_env,
                 timeout=600
             )
 
