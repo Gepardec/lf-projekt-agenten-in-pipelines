@@ -132,7 +132,10 @@ def main():
 
         # 5. Clean output and evaluate empty state
         clean_output = clean_ansi(cli_output).strip()
-
+        
+        if "###" in clean_output and "NO_NEW_RELEASES" not in clean_output:
+            clean_output = "###" + clean_output.split("###", 1)[1]
+            
         if "NO_NEW_RELEASES" in clean_output:
             print(f"No new releases for {feed_url} since {last_run}. Skipping webhook.")
             continue
