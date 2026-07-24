@@ -38,13 +38,20 @@ safe-outputs:
     labels: [report, release-notes]
     close-older-issues: true
     expires: 30
+mcp-servers:
+  tavily:
+    command: npx
+    args: ["-y", "@tavily/mcp"]
+    env:
+      TAVILY_API_KEY: "${{ secrets.TAVILY_API_KEY }}"
+    allowed: ["search", "search_news"]
 ---
 
 # Daily Release Notes Report
 
 ## Task
 
-Create one daily issue summarizing release notes from all feeds listed in `inventory.json`. Consider also version bumps, breaking changes, and new features. Post a summary to Google Chat with a link to the issue.
+Create one daily issue summarizing release notes from all feeds listed in `inventory.json`. Consider also version bumps, breaking changes, and new features. Search for additional relevant information on the web. Post a detailed summary to Google Chat with a link to the issue.
 
 Use this report window:
 - last two weeks ending at workflow start (UTC)
@@ -54,7 +61,8 @@ Process:
 2. For each item, fetch `feed_url` (RSS or Atom) and parse entries.
 3. Keep only entries published in the report window.
 4. Build one consolidated report issue.
-5. Post a well formatted message to Google Chat with a link to the issue and a summary of the release notes, grouped by the technology.
+5. Search the web for information about each release entry, including changelogs, release notes, and relevant discussions. Include links to the issue and source links for each summarized release entry. Use the tavily search tool to find recent information.
+6. Post a well formatted message to Google Chat with a detailed description of all Changes, New Features, and Feed Summaries, including links to the issue and source links for each summarized release entry.
 
 If no entries are found in the window across all feeds, call:
 - `noop("No release updates in the last two weeks (<window_start_utc> to <window_end_utc>)")`
