@@ -48,18 +48,22 @@ def main():
     # Prepare environment for the subprocess (merges current env with the token)
     process_env = os.environ.copy()
     process_env["JUNIE_API_TOKEN"] = junie_api_token
+    
     try:
         with open("prompt.md", "r", encoding="utf-8") as pf:
             # .strip() entfernt versehentliche Leerzeilen am Anfang/Ende
             global_prompt = pf.read().strip() 
     except FileNotFoundError:
         raise RuntimeError("Error: 'prompt.md' not found.")
-    # 3. Process feeds
-    for item in inventory.get("feeds", []):
-        feed_url = item.get("feed_url")
-        #custom_prompt = item.get("prompt")
         
-        custom_prompt=global_prompt
+    # 3. Process feeds
+    # Da inventory nun direkt eine Liste ist, iterieren wir direkt darüber
+    for item in inventory:
+        feed_url = item.get("feed_url")
+        if not feed_url:
+            continue # Überspringen, falls ein Eintrag keine feed_url hat
+            
+        custom_prompt = global_prompt
         print(f"Processing feed: {feed_url}")
 
         # Call junie-cli
