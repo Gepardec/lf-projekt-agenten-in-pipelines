@@ -1,4 +1,4 @@
-name: Juni CLI voa Python
+name: Juni CLI via Python
 on:
   schedule:
     - cron: '0 8 * * *'
