@@ -6,5 +6,9 @@
   {
     "name": "OpenBao",
     "feed_url": "https://github.com/openbao/openbao/releases.atom"
+  },
+  {
+    "name": "OpenShift OKD",
+    "feed_url": "https://github.com/openshift/okd/releases.atom"
   }
 ]
