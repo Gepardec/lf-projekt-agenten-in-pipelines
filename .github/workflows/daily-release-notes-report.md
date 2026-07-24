@@ -23,6 +23,7 @@ network:
     - defaults
     - github
     - "*.grafana.net"
+    - "*.tavily.com"
 observability:
   otlp:
     endpoint:
@@ -41,7 +42,7 @@ safe-outputs:
 mcp-servers:
   tavily:
     command: npx
-    args: ["-y", "@tavily/mcp"]
+    args: ["-y", "tavily-mcp"]
     env:
       TAVILY_API_KEY: "${{ secrets.TAVILY_API_KEY }}"
     allowed: ["search", "search_news"]
