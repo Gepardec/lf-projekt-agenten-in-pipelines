@@ -22,6 +22,13 @@ network:
   allowed:
     - defaults
     - github
+    - "*.grafana.net"
+observability:
+  otlp:
+    endpoint:
+      - url: ${{ secrets.GH_AW_OTEL_GRAFANA_ENDPOINT }}
+        headers:
+          Authorization: ${{ secrets.GH_AW_OTEL_GRAFANA_AUTHORIZATION }}
 safe-outputs:
   mentions: false
   allowed-github-references: []
