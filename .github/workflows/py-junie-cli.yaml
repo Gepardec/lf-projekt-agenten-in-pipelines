@@ -27,5 +27,5 @@ jobs:
       - name: Run Python Worker
         env:
           GOOGLE_CHAT_WEBHOOK: ${{ secrets.GOOGLE_CHAT_WEBHOOK }}
-          JUNIE_API_TOKEN: ${{ secrets.JUNIE_API_TOKEN }}
+          JUNIE_API_KEY: ${{ secrets.JUNIE_API_TOKEN }}
         run: python worker.py
