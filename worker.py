@@ -30,16 +30,16 @@ def main():
     if not webhook_url:
         raise ValueError("Error: GOOGLE_CHAT_WEBHOOK environment variable is missing.")
         
-    junie_api_token = os.environ.get("JUNIE_API_TOKEN")
-    if not junie_api_token:
-        raise ValueError("Error: JUNIE_API_TOKEN environment variable is missing.")
+    #junie_api_token = os.environ.get("JUNIE_API_KEY")
+    #if not junie_api_token:
+    #    raise ValueError("Error: JUNIE_API_KEY environment variable is missing.")
 
     # 2. Load inventory
     with open("inventory.json", "r", encoding="utf-8") as f:
         inventory = json.load(f)
 
-    process_env = os.environ.copy()
-    process_env["JUNIE_API_TOKEN"] = junie_api_token
+    #process_env = os.environ.copy()
+    #process_env["JUNIE_API_TOKEN"] = junie_api_token
     
     # 3. Load global prompt
     try:
