@@ -74,12 +74,15 @@ def main():
         # Call junie with the combined prompt
         try:
             result = subprocess.run(
-                ["junie", "--prompt", combined_prompt],
+                ["junie"],
+                input=combined_prompt
                 capture_output=True,
                 text=True,
                 check=True,
-                env=process_env
+                env=process_env,
+                timeout=600
             )
+
             cli_output = result.stdout.strip()
         except subprocess.CalledProcessError as e:
             print(f"junie error for {feed_url}: {e.stderr}")
