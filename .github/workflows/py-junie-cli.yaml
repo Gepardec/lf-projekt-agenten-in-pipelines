@@ -18,11 +18,11 @@ jobs:
         with:
           python-version: '3.11'
           
-      - name: Install junie-cli
-        run: npm install -g jetbrains/junie-cli
+      #- name: Install junie-cli
+      #  run: npm install -g jetbrains/junie-cli
 
-      #- name: Install junie-cli via Script
-      #  run: curl -fsSL https://junie.jetbrains.com/install.sh | bash
+      - name: Install junie-cli via Script
+        run: curl -fsSL https://junie.jetbrains.com/install.sh | bash
       
       - name: Run Python Worker
         env:
