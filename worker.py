@@ -132,16 +132,18 @@ def main():
 
         # 5. Clean output and evaluate empty state
         clean_output = clean_ansi(cli_output).strip()
-        
-        if "###" in clean_output and "NO_NEW_RELEASES" not in clean_output:
-            clean_output = "###" + clean_output.split("###", 1)[1]
+
+        # BRUTALER CUT: Entfernt CLI-Artefakte vor dem eigentlichen Content
+        # Alles vor dem ersten "📦" wird weggeworfen.
+        if "📦" in clean_output and "NO_NEW_RELEASES" not in clean_output:
+            clean_output = "📦" + clean_output.split("📦", 1)[1]
             
+        # ZUSÄTZLICHER CUT: Agenten-Logs am Ende entfernen, falls der Prompt ignoriert wird
+        if "Verification" in clean_output or "Changes" in clean_output:
+            clean_output = clean_output.split("\n* Summary")[0].split("\nSummary")[0]
+
         if "NO_NEW_RELEASES" in clean_output:
             print(f"No new releases for {feed_url} since {last_run}. Skipping webhook.")
-            continue
-            
-        if not clean_output:
-            print(f"Empty output for {feed_url}. Skipping webhook.")
             continue
 
         # 6. Build payload for Google Chat
