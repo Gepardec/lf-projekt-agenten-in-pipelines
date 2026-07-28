@@ -70,10 +70,14 @@ def main():
             
         print(f"Processing feed: {feed_url}")
 
-        # Inject watermark date into prompt
+        # Get project name from inventory
+        project_name = item.get("name", "Unknown Project")
+
+        # Inject watermark date and project name into prompt
         last_run = watermarks.get(feed_url, "2000-01-01T00:00:00Z")
         current_time = datetime.datetime.now(datetime.timezone.utc).isoformat()
-        prompt_with_date = global_prompt.replace("{{LAST_RUN_DATE}}", last_run)
+        
+        prompt_with_vars = global_prompt.replace("{{LAST_RUN_DATE}}", last_run).replace("{{PROJECT_NAME}}", project_name)
 
         # Fetch the feed content using Python
         try:
@@ -93,7 +97,7 @@ def main():
             continue
 
         # Combine instructions and feed data
-        combined_prompt = f"{prompt_with_date}\n\nHere is the feed content:\n\n{feed_content}"
+        combined_prompt = f"{prompt_with_vars}\n\nHere is the feed content:\n\n{feed_content}"
 
         # Call junie with the combined prompt via standard input (STDIN)
         try:
