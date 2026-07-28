@@ -70,10 +70,14 @@ def main():
             
         print(f"Processing feed: {feed_url}")
 
-        # Inject watermark date into prompt
+        # Get project name from inventory
+        project_name = item.get("name", "Unknown Project")
+
+        # Inject watermark date and project name into prompt
         last_run = watermarks.get(feed_url, "2000-01-01T00:00:00Z")
         current_time = datetime.datetime.now(datetime.timezone.utc).isoformat()
-        prompt_with_date = global_prompt.replace("{{LAST_RUN_DATE}}", last_run)
+        
+        prompt_with_vars = global_prompt.replace("{{LAST_RUN_DATE}}", last_run).replace("{{PROJECT_NAME}}", project_name)
 
         # Fetch the feed content using Python
         try:
@@ -93,7 +97,7 @@ def main():
             continue
 
         # Combine instructions and feed data
-        combined_prompt = f"{prompt_with_date}\n\nHere is the feed content:\n\n{feed_content}"
+        combined_prompt = f"{prompt_with_vars}\n\nHere is the feed content:\n\n{feed_content}"
 
         # Call junie with the combined prompt via standard input (STDIN)
         try:
@@ -133,19 +137,22 @@ def main():
         # 5. Clean output and evaluate empty state
         clean_output = clean_ansi(cli_output).strip()
 
-        # BRUTALER CUT: Entfernt CLI-Artefakte vor dem eigentlichen Content
-        # Alles vor dem ersten "📦" wird weggeworfen.
-        if "📦" in clean_output and "NO_NEW_RELEASES" not in clean_output:
-            clean_output = "📦" + clean_output.split("📦", 1)[1]
-            
-        # ZUSÄTZLICHER CUT: Agenten-Logs am Ende entfernen, falls der Prompt ignoriert wird
-        if "Verification" in clean_output or "Changes" in clean_output:
-            clean_output = clean_output.split("\n* Summary")[0].split("\nSummary")[0]
-
         if "NO_NEW_RELEASES" in clean_output:
             print(f"No new releases for {feed_url} since {last_run}. Skipping webhook.")
             continue
 
+        # VORDERER CUT: Entfernt CLI-Artefakte vor dem eigentlichen Content
+        if "📦" in clean_output:
+            clean_output = "📦" + clean_output.split("📦", 1)[1]
+    
+        # alles ab, was ab dem ersten "###" kommt.
+        if "\n###" in clean_output:
+            clean_output = clean_output.split("\n###")[0].strip()
+            
+        if not clean_output:
+            print(f"Empty output for {feed_url}. Skipping webhook.")
+            continue
+        
         # 6. Build payload for Google Chat
         payload = {"text": clean_output}
         data = json.dumps(payload).encode("utf-8")
