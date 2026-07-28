@@ -1,2 +1,6 @@
 {
+  "https://github.com/argoproj/argo-cd/releases.atom": "2026-07-28T14:45:07.883736+00:00",
+  "https://github.com/openbao/openbao/releases.atom": "2026-07-28T14:46:55.646510+00:00",
+  "https://github.com/openshift/okd/releases.atom": "2026-07-28T14:48:11.070568+00:00",
+  "https://github.com/keycloak/keycloak/releases.atom": "2026-07-28T14:49:38.466726+00:00"
 }
