@@ -57,10 +57,10 @@ def main():
     
     # 3. Load global prompt
     try:
-        with open("prompt.md", "r", encoding="utf-8") as pf:
+        with open("prompt_summarizer.md", "r", encoding="utf-8") as pf:
             global_prompt = pf.read().strip() 
     except FileNotFoundError:
-        raise RuntimeError("Error: 'prompt.md' not found.")
+        raise RuntimeError("Error: 'prompt_summarizer.md' not found.")
         
     # 4. Process feeds
     for item in inventory:
@@ -152,6 +152,53 @@ def main():
         if not clean_output:
             print(f"Empty output for {feed_url}. Skipping webhook.")
             continue
+        issue_url = ""
+        if "⚠️ *Breaking:*" in clean_output:
+            print(f"Breaking Changes detected for {project_name}. Triggering Agentic Deep Dive...")
+            
+            try:
+                with open("prompt_deepdive.md", "r", encoding="utf-8") as mf:
+                    migration_prompt = mf.read().strip()
+                    
+                migration_combined = f"{migration_prompt}\n\nContent:\n{feed_content}"
+                
+                # Zweiter junie Aufruf für die Recherche
+                mig_result = subprocess.run(
+                    ["junie"], 
+                    input=migration_combined, 
+                    capture_output=True, 
+                    text=True, 
+                    check=True,
+                    timeout=600,
+                    env=process_env
+                )
+                issue_body = clean_ansi(mig_result.stdout.strip())
+                
+                # GitHub Issue via 'gh' CLI erstellen
+                issue_title = f"Action Required: Migrate to {project_name} Update"
+                gh_env = os.environ.copy() # Nimmt den GH_TOKEN aus den GitHub Actions mit
+                
+                gh_result = subprocess.run(
+                    ["gh", "issue", "create", "--title", issue_title, "--body", issue_body],
+                    capture_output=True, 
+                    text=True, 
+                    check=True,
+                    env=gh_env
+                )
+                
+                issue_url = gh_result.stdout.strip()
+                print(f"Created Migration Issue: {issue_url}")
+                
+            except FileNotFoundError:
+                print("Skipping Deep Dive: 'prompt_deepdive.md' not found.")
+            except subprocess.CalledProcessError as e:
+                print(f"Error during deep dive or issue creation: {e.stderr}")
+            except Exception as e:
+                print(f"Unexpected error creating migration issue: {e}")
+
+        # Chat-Nachricht um das Ticket ergänzen
+        if issue_url:
+            clean_output += f"\n🛠️ *Action Item:* Migration Guide recherchiert! Bitte abarbeiten: <{issue_url}|Ticket ansehen>"
         
         # 6. Build payload for Google Chat
         payload = {"text": clean_output}
