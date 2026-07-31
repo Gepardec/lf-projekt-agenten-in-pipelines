@@ -2,18 +2,6 @@
   {
     "name": "ArgoCD",
     "feed_url": "https://github.com/argoproj/argo-cd/releases.atom"
-  },
-  {
-    "name": "OpenBao",
-    "feed_url": "https://github.com/openbao/openbao/releases.atom"
-  },
-  {
-    "name": "OpenShift OKD",
-    "feed_url": "https://github.com/openshift/okd/releases.atom"
-  },
-  {
-    "name": "Keycloak",
-    "feed_url": "https://github.com/keycloak/keycloak/releases.atom"
   }
 ]
 

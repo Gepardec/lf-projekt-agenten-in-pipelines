@@ -133,7 +133,7 @@ def main():
         # Combine instructions and feed data
         combined_prompt = f"{prompt_with_vars}\n\nHere is the feed content:\n\n{feed_content}"
 
-        # Call junie with the combined prompt via standard input (STDIN)
+        # Call junie with the combined prompt
         try:
             cli_output = call_junie(combined_prompt, process_env, timeout=600)
         except subprocess.CalledProcessError as e:
@@ -154,10 +154,22 @@ def main():
             print(f"Invalid format (no 📦 detected) for {feed_url}. Assuming agent logs. Skipping.")
             continue
 
-        # VORDERER CUT: Entfernt CLI-Artefakte vor dem eigentlichen Content
+        # VORDERER CUT: Entfernt den Müll VOR dem Content
         clean_output = "📦" + clean_output.split("📦", 1)[1]
     
-        # alles ab, was ab dem ersten "###" kommt.
+        # AGGRESSIVER HINTERER CUT: Entfernt den Bash-Echo und Agenten-Log-Müll NACH dem Content
+        lines = clean_output.split('\n')
+        clean_lines = []
+        for line in lines:
+            stripped_line = line.strip()
+            # Sobald der Agent anfängt seine eigenen Befehle (EOF, ●, |) auszugeben, stoppen wir das Einlesen!
+            if stripped_line == "EOF" or stripped_line.startswith("●") or stripped_line.startswith("|") or "TASK RESULT" in stripped_line:
+                break
+            clean_lines.append(line)
+            
+        clean_output = "\n".join(clean_lines).strip()
+
+        # Fallback-Cut, falls es doch noch Reste gibt
         if "\n###" in clean_output:
             clean_output = clean_output.split("\n###")[0].strip()
             
@@ -181,7 +193,6 @@ def main():
     # 8. Spruch der Woche (nur generieren und senden, wenn es Updates gab)
     if any_updates_found:
         print("Generating daily quote...")
-        # Aktuelles Datum und Uhrzeit formatieren (z.B. "2026-07-31 12:37:14")
         cache_buster_time = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         
         quote_prompt = f"""Heute ist der {cache_buster_time}. 
@@ -190,6 +201,9 @@ Du bist ein zynischer, aber meditativer Senior DevOps Engineer, der die täglich
 
 Generiere exakt EINEN neuen, einzigartigen Einzeiler im Stil eines Kalenderspruchs für das Tech-Team. 
 Die Struktur ist immer: [Ein typisches IT/DevOps-Problem] + [Eine völlig übertriebene, fast schon esoterische positive Umdeutung].
+
+ABSOLUTES TABU (STRIKTE REGEL): 
+Mache NIEMALS Witze über Security-Themen, Datenlecks, offene S3-Buckets, Passwörter, Hacks oder Compliance. Das ist streng verboten! Beschränke dich AUSSCHLIESSLICH auf harmlose, operative Nervigkeiten (z.B. YAML-Einrückungen, langsame CI/CD-Pipelines, Git-Merge-Konflikte, Kubernetes-Pods im CrashLoop).
 
 Hier sind drei Beispiele für den gewünschten Ton (kopiere diese NICHT, sondern erfinde einen neuen):
 - "Der Container ist zwar in einem CrashLoopBackOff gefangen, aber unser agiler Geist skaliert heute grenzenlos."
@@ -200,7 +214,7 @@ WICHTIG (STRIKTE REGEL):
 Du musst deinen generierten Spruch ZWINGEND zwischen <quote> und </quote> XML-Tags setzen! Schreibe absolut keinen anderen Text außerhalb dieser Tags!
 Beispiel: <quote>Der Container ist zwar in einem CrashLoopBackOff gefangen, aber unser agiler Geist skaliert heute grenzenlos.</quote>"""
         try:
-            # Timeout auf 180 Sekunden erhöht
+            # Timeout auf 180 Sekunden
             quote_output = call_junie(quote_prompt, process_env, timeout=180)
             raw_quote = clean_ansi(quote_output).strip()
             
