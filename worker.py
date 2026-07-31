@@ -191,14 +191,21 @@ def main():
         # Aktuelles Datum und Uhrzeit formatieren (z.B. "2026-07-31 12:37:14")
         cache_buster_time = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
         
-        quote_prompt = (
-            f"Heute ist der {cache_buster_time}. "
-            "Generiere exakt EINEN neuen, noch nie dagewesenen depressiv-fatalistischen Einzeiler, "
-            "der am Ende einen positiven, motivierenden Spin hat. Im Stil eines Kalenderspruchs, "
-            "sehr weise und bedeutend, aber im Grunde auch wieder maximal nichtssagend und dadurch witzig."
-            "WICHTIG: Gib AUSSCHLIESSLICH diesen einen Satz aus (ohne 'Spruch der Woche' davor und ohne 'Viel Glück' danach). "
-            "Kein 'Thinking', keine Logs, keine Formatierung, keine Einleitung, absolut gar nichts anderes."
-        )
+        quote_prompt = f"""Heute ist der {cache_buster_time}. 
+
+Du bist ein zynischer, aber meditativer Senior DevOps Engineer, der die täglichen Schmerzen der IT (Deployments, Pipelines, Kubernetes, YAML-Einrückungen, Bugs) mit absurder, pseudo-philosophischer Motivation erträgt.
+
+Generiere exakt EINEN neuen, einzigartigen Einzeiler im Stil eines Kalenderspruchs für das Tech-Team. 
+Die Struktur ist immer: [Ein typisches IT/DevOps-Problem] + [Eine völlig übertriebene, fast schon esoterische positive Umdeutung].
+
+Hier sind drei Beispiele für den gewünschten Ton (kopiere diese NICHT, sondern erfinde einen neuen):
+- "Der Container ist zwar in einem CrashLoopBackOff gefangen, aber unser agiler Geist skaliert heute grenzenlos."
+- "Ein gelöschter Terraform-State ist keine Katastrophe, sondern nur eine Einladung des Universums, die Infrastruktur noch bewusster neu zu denken."
+- "Pipeline-Rot ist die wärmste Farbe, denn sie erinnert uns daran, dass wir überhaupt noch etwas fühlen."
+
+WICHTIG: 
+- Gib AUSSCHLIESSLICH den einen neuen Satz aus (ohne 'Spruch der Woche' davor und ohne 'Viel Glück' danach). 
+- Schreibe KEINE Einleitung, KEIN 'Thinking', KEINE Formatierung und KEINE Anführungszeichen. Nur den reinen Text."""
         try:
             quote_result = subprocess.run(
                 ["junie"],
