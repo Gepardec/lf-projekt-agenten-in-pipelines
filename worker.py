@@ -28,6 +28,22 @@ def clean_ansi(text):
     ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
     return ansi_escape.sub('', text)
 
+def send_gchat_message(webhook_url, text):
+    """Hilfsfunktion zum Senden von Nachrichten an Google Chat."""
+    payload = {"text": text}
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        webhook_url,
+        data=data,
+        headers={"Content-Type": "application/json"}
+    )
+    try:
+        with urllib.request.urlopen(req) as response:
+            return response.status == 200
+    except Exception as e:
+        print(f"Error sending to Google Chat: {e}")
+        return False
+
 def main():
     # 0. Load local .env file
     load_env_file()
@@ -57,11 +73,14 @@ def main():
     
     # 3. Load global prompt
     try:
-        with open("prompt.md", "r", encoding="utf-8") as pf:
+        with open("prompt_summarizer.md", "r", encoding="utf-8") as pf:
             global_prompt = pf.read().strip() 
     except FileNotFoundError:
-        raise RuntimeError("Error: 'prompt.md' not found.")
+        raise RuntimeError("Error: 'prompt_summarizer.md' not found.")
         
+    # Variable, um zu tracken, ob heute überhaupt Updates gefunden wurden
+    any_updates_found = False
+
     # 4. Process feeds
     for item in inventory:
         feed_url = item.get("feed_url")
@@ -153,28 +172,70 @@ def main():
             print(f"Empty output for {feed_url}. Skipping webhook.")
             continue
         
-        # 6. Build payload for Google Chat
-        payload = {"text": clean_output}
-        data = json.dumps(payload).encode("utf-8")
+        # 6. Sende Begrüßung (nur beim allerersten Update des Tages)
+        if not any_updates_found:
+            send_gchat_message(webhook_url, "*Guten Morgen!* Hier sind die Release-Updates für diese Woche:")
+            any_updates_found = True
+            time.sleep(1)
 
-        # 7. Send to Google Chat
-        req = urllib.request.Request(
-            webhook_url,
-            data=data,
-            headers={"Content-Type": "application/json"}
-        )
+        # 7. Sende Release-Update an Google Chat
+        if send_gchat_message(webhook_url, clean_output):
+            print(f"Successfully sent {feed_url} to Google Chat.")
+            watermarks[feed_url] = current_time
         
-        try:
-            with urllib.request.urlopen(req) as response:
-                print(f"Successfully sent {feed_url} to Google Chat. Status: {response.status}")
-                # Update watermark ONLY on successful transmission
-                watermarks[feed_url] = current_time
-        except Exception as e:
-            print(f"Error during webhook call: {e}")
-
         time.sleep(2)
 
-    # 8. Save updated watermarks to disk
+    # 8. Spruch der Woche (nur generieren und senden, wenn es Updates gab)
+    if any_updates_found:
+        print("Generating daily quote...")
+        # Aktuelles Datum und Uhrzeit formatieren (z.B. "2026-07-31 12:37:14")
+        cache_buster_time = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        
+        quote_prompt = f"""Heute ist der {cache_buster_time}. 
+
+Du bist ein zynischer, aber meditativer Senior DevOps Engineer, der die täglichen Schmerzen der IT (Deployments, Pipelines, Kubernetes, YAML-Einrückungen, Bugs) mit absurder, pseudo-philosophischer Motivation erträgt.
+
+Generiere exakt EINEN neuen, einzigartigen Einzeiler im Stil eines Kalenderspruchs für das Tech-Team. 
+Die Struktur ist immer: [Ein typisches IT/DevOps-Problem] + [Eine völlig übertriebene, fast schon esoterische positive Umdeutung].
+
+Hier sind drei Beispiele für den gewünschten Ton (kopiere diese NICHT, sondern erfinde einen neuen):
+- "Der Container ist zwar in einem CrashLoopBackOff gefangen, aber unser agiler Geist skaliert heute grenzenlos."
+- "Ein gelöschter Terraform-State ist keine Katastrophe, sondern nur eine Einladung des Universums, die Infrastruktur noch bewusster neu zu denken."
+- "Pipeline-Rot ist die wärmste Farbe, denn sie erinnert uns daran, dass wir überhaupt noch etwas fühlen."
+
+WICHTIG: 
+- Gib AUSSCHLIESSLICH den einen neuen Satz aus (ohne 'Spruch der Woche' davor und ohne 'Viel Glück' danach). 
+- Schreibe KEINE Einleitung, KEIN 'Thinking', KEINE Formatierung und KEINE Anführungszeichen. Nur den reinen Text."""
+        try:
+            quote_result = subprocess.run(
+                ["junie"],
+                input=quote_prompt,
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=600,
+                env=process_env
+            )
+            raw_quote = clean_ansi(quote_result.stdout.strip())
+            
+            # Sicherheitsfilter, falls die CLI doch Logs ausgibt
+            if "\n" in raw_quote:
+                raw_quote = raw_quote.split("\n")[-1].strip() 
+            if "TASK RESULT" in raw_quote:
+                raw_quote = raw_quote.split("TASK RESULT")[-1].strip()
+                
+            if raw_quote:
+                # Sicherstellen, dass der KI-Satz mit einem Punkt endet, falls er fehlt
+                if not raw_quote.endswith((".", "!", "?")):
+                    raw_quote += "."
+                    
+                # Hartes Formatting durch Python
+                final_quote_msg = f"Spruch der Woche: {raw_quote} Viel Glück!"
+                send_gchat_message(webhook_url, final_quote_msg)
+        except Exception as e:
+            print(f"Failed to generate quote: {e}")
+
+    # 9. Save updated watermarks to disk
     with open(watermarks_file, "w", encoding="utf-8") as f:
         json.dump(watermarks, f, indent=2)
 
