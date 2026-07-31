@@ -44,6 +44,21 @@ def send_gchat_message(webhook_url, text):
         print(f"Error sending to Google Chat: {e}")
         return False
 
+def call_junie(prompt_text, env_dict, timeout=600):
+    """Führt junie CLI sicher aus und nutzt automatisch den lokalen Fallback-Pfad."""
+    try:
+        result = subprocess.run(
+            ["junie"], input=prompt_text, capture_output=True, text=True, check=True, timeout=timeout, env=env_dict
+        )
+        return result.stdout
+    except FileNotFoundError:
+        # Fallback path if 'junie' is not in global PATH
+        fallback_path = os.path.expanduser("~/.local/bin/junie")
+        result = subprocess.run(
+            [fallback_path], input=prompt_text, capture_output=True, text=True, check=True, timeout=timeout, env=env_dict
+        )
+        return result.stdout
+
 def main():
     # 0. Load local .env file
     load_env_file()
@@ -120,38 +135,12 @@ def main():
 
         # Call junie with the combined prompt via standard input (STDIN)
         try:
-            result = subprocess.run(
-                ["junie"],
-                input=combined_prompt,
-                capture_output=True,
-                text=True,
-                check=True,
-                timeout=600,
-                env=process_env
-            )
-            cli_output = result.stdout.strip()
+            cli_output = call_junie(combined_prompt, process_env, timeout=600)
         except subprocess.CalledProcessError as e:
             print(f"junie error for {feed_url}: {e.stderr}")
             continue
-        except FileNotFoundError:
-            # Fallback path if 'junie' is not in global PATH
-            try:
-                fallback_path = os.path.expanduser("~/.local/bin/junie")
-                result = subprocess.run(
-                    [fallback_path],
-                    input=combined_prompt,
-                    capture_output=True,
-                    text=True,
-                    check=True,
-                    timeout=600,
-                    env=process_env
-                )
-                cli_output = result.stdout.strip()
-            except Exception as ex:
-                raise RuntimeError(f"Error: 'junie' was not found on the system. {ex}")
-        except subprocess.TimeoutExpired:
-            print(f"Timeout error for {feed_url}: junie processing exceeded 600 seconds.")
-            continue
+        except Exception as ex:
+            raise RuntimeError(f"Unexpected error executing junie for {feed_url}: {ex}")
 
         # 5. Clean output and evaluate empty state
         clean_output = clean_ansi(cli_output).strip()
@@ -160,9 +149,13 @@ def main():
             print(f"No new releases for {feed_url} since {last_run}. Skipping webhook.")
             continue
 
+        # HÄRTERER FILTER: Wenn kein Paket-Emoji drin ist, ist es Agenten-Müll (Logs etc.)
+        if "📦" not in clean_output:
+            print(f"Invalid format (no 📦 detected) for {feed_url}. Assuming agent logs. Skipping.")
+            continue
+
         # VORDERER CUT: Entfernt CLI-Artefakte vor dem eigentlichen Content
-        if "📦" in clean_output:
-            clean_output = "📦" + clean_output.split("📦", 1)[1]
+        clean_output = "📦" + clean_output.split("📦", 1)[1]
     
         # alles ab, was ab dem ersten "###" kommt.
         if "\n###" in clean_output:
@@ -203,26 +196,20 @@ Hier sind drei Beispiele für den gewünschten Ton (kopiere diese NICHT, sondern
 - "Ein gelöschter Terraform-State ist keine Katastrophe, sondern nur eine Einladung des Universums, die Infrastruktur noch bewusster neu zu denken."
 - "Pipeline-Rot ist die wärmste Farbe, denn sie erinnert uns daran, dass wir überhaupt noch etwas fühlen."
 
-WICHTIG: 
-- Gib AUSSCHLIESSLICH den einen neuen Satz aus (ohne 'Spruch der Woche' davor und ohne 'Viel Glück' danach). 
-- Schreibe KEINE Einleitung, KEIN 'Thinking', KEINE Formatierung und KEINE Anführungszeichen. Nur den reinen Text."""
+WICHTIG (STRIKTE REGEL):
+Du musst deinen generierten Spruch ZWINGEND zwischen <quote> und </quote> XML-Tags setzen! Schreibe absolut keinen anderen Text außerhalb dieser Tags!
+Beispiel: <quote>Der Container ist zwar in einem CrashLoopBackOff gefangen, aber unser agiler Geist skaliert heute grenzenlos.</quote>"""
         try:
-            quote_result = subprocess.run(
-                ["junie"],
-                input=quote_prompt,
-                capture_output=True,
-                text=True,
-                check=True,
-                timeout=600,
-                env=process_env
-            )
-            raw_quote = clean_ansi(quote_result.stdout.strip())
+            # Timeout auf 180 Sekunden erhöht
+            quote_output = call_junie(quote_prompt, process_env, timeout=180)
+            raw_quote = clean_ansi(quote_output).strip()
             
-            # Sicherheitsfilter, falls die CLI doch Logs ausgibt
-            if "\n" in raw_quote:
-                raw_quote = raw_quote.split("\n")[-1].strip() 
-            if "TASK RESULT" in raw_quote:
-                raw_quote = raw_quote.split("TASK RESULT")[-1].strip()
+            # Extrahiere EXAKT das, was zwischen <quote> und </quote> steht
+            if "<quote>" in raw_quote and "</quote>" in raw_quote:
+                raw_quote = raw_quote.split("<quote>")[1].split("</quote>")[0].strip()
+            else:
+                # Fallback, falls die KI die Tags doch vergisst
+                raw_quote = "Der Pipeline-Runner ist ausgefallen, aber zumindest wärmt das Feuer der Fehlermeldungen unsere agilen Herzen."
                 
             if raw_quote:
                 # Sicherstellen, dass der KI-Satz mit einem Punkt endet, falls er fehlt

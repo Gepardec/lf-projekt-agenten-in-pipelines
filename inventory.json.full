@@ -1,0 +1,103 @@
+[
+  {
+    "name": "ArgoCD",
+    "feed_url": "https://github.com/argoproj/argo-cd/releases.atom"
+  },
+  {
+    "name": "OpenBao",
+    "feed_url": "https://github.com/openbao/openbao/releases.atom"
+  },
+  {
+    "name": "OpenShift OKD",
+    "feed_url": "https://github.com/openshift/okd/releases.atom"
+  },
+  {
+    "name": "Keycloak",
+    "feed_url": "https://github.com/keycloak/keycloak/releases.atom"
+  },
+  {
+    "name": "Harbor",
+    "feed_url": "https://github.com/goharbor/harbor/releases.atom"
+  },
+  {
+    "name": "Nexus Repository",
+    "feed_url": "https://github.com/sonatype/nexus-public/releases.atom"
+  },
+  {
+    "name": "SonarQube",
+    "feed_url": "https://github.com/SonarSource/sonarqube/releases.atom"
+  },
+  {
+    "name": "OpenTelemetry Collector",
+    "feed_url": "https://github.com/open-telemetry/opentelemetry-collector/releases.atom"
+  },
+  {
+    "name": "OpenTelemetry Collector",
+    "feed_url": "https://github.com/open-telemetry/opentelemetry-collector/releases.atom"
+  },
+  {
+    "name": "Ansible",
+    "feed_url": "https://github.com/ansible/ansible/releases.atom"
+  },
+  {
+    "name": "HashiCorp Vault",
+    "feed_url": "https://github.com/hashicorp/vault/releases.atom"
+  },
+  {
+    "name": "Docker Engine (Moby)",
+    "feed_url": "https://github.com/moby/moby/releases.atom"
+  },
+  {
+    "name": "Podman",
+    "feed_url": "https://github.com/containers/podman/releases.atom"
+  },
+  {
+    "name": "Renovate",
+    "feed_url": "https://github.com/renovatebot/renovate/releases.atom"
+  },
+  {
+    "name": "GitHub Actions Runner",
+    "feed_url": "https://github.com/actions/runner/releases.atom"
+  },
+  {
+    "name": "Dependency Track",
+    "feed_url": "https://github.com/DependencyTrack/dependency-track/releases.atom"
+  },
+  {
+    "name": "GitLab",
+    "feed_url": "https://github.com/gitlabhq/gitlabhq/releases.atom"
+  },
+  {
+    "name": "Helm",
+    "feed_url": "https://github.com/helm/helm/releases.atom"
+  },
+  {
+    "name": "Prometheus",
+    "feed_url": "https://github.com/prometheus/prometheus/releases.atom"
+  },
+  {
+    "name": "Grafana",
+    "feed_url": "https://github.com/grafana/grafana/releases.atom"
+  },
+  {
+    "name": "Kustomize",
+    "feed_url": "https://github.com/kubernetes-sigs/kustomize/releases.atom"
+  },
+  {
+    "name": "Kibana",
+    "feed_url": "https://github.com/elastic/kibana/releases.atom"
+  },
+  {
+    "name": "Grafana Tempo",
+    "feed_url": "https://github.com/grafana/tempo/releases.atom"
+  },
+  {
+    "name": "Grafana Loki",
+    "feed_url": "https://github.com/grafana/loki/releases.atom"
+  },
+  {
+    "name": "Grafana Mimir",
+    "feed_url": "https://github.com/grafana/mimir/releases.atom"
+  }
+]
+
