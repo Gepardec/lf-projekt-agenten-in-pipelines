@@ -28,6 +28,22 @@ def clean_ansi(text):
     ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
     return ansi_escape.sub('', text)
 
+def send_gchat_message(webhook_url, text):
+    """Hilfsfunktion zum Senden von Nachrichten an Google Chat."""
+    payload = {"text": text}
+    data = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(
+        webhook_url,
+        data=data,
+        headers={"Content-Type": "application/json"}
+    )
+    try:
+        with urllib.request.urlopen(req) as response:
+            return response.status == 200
+    except Exception as e:
+        print(f"Error sending to Google Chat: {e}")
+        return False
+
 def main():
     # 0. Load local .env file
     load_env_file()
@@ -62,6 +78,9 @@ def main():
     except FileNotFoundError:
         raise RuntimeError("Error: 'prompt_summarizer.md' not found.")
         
+    # Variable, um zu tracken, ob heute überhaupt Updates gefunden wurden
+    any_updates_found = False
+
     # 4. Process feeds
     for item in inventory:
         feed_url = item.get("feed_url")
@@ -152,76 +171,64 @@ def main():
         if not clean_output:
             print(f"Empty output for {feed_url}. Skipping webhook.")
             continue
-        issue_url = ""
-        if "⚠️ *Breaking:*" in clean_output:
-            print(f"Breaking Changes detected for {project_name}. Triggering Agentic Deep Dive...")
-            
-            try:
-                with open("prompt_deepdive.md", "r", encoding="utf-8") as mf:
-                    migration_prompt = mf.read().strip()
-                    
-                migration_combined = f"{migration_prompt}\n\nContent:\n{feed_content}"
-                
-                # Zweiter junie Aufruf für die Recherche
-                mig_result = subprocess.run(
-                    ["junie"], 
-                    input=migration_combined, 
-                    capture_output=True, 
-                    text=True, 
-                    check=True,
-                    timeout=600,
-                    env=process_env
-                )
-                issue_body = clean_ansi(mig_result.stdout.strip())
-                
-                # GitHub Issue via 'gh' CLI erstellen
-                issue_title = f"Action Required: Migrate to {project_name} Update"
-                gh_env = os.environ.copy() # Nimmt den GH_TOKEN aus den GitHub Actions mit
-                
-                gh_result = subprocess.run(
-                    ["gh", "issue", "create", "--title", issue_title, "--body", issue_body],
-                    capture_output=True, 
-                    text=True, 
-                    check=True,
-                    env=gh_env
-                )
-                
-                issue_url = gh_result.stdout.strip()
-                print(f"Created Migration Issue: {issue_url}")
-                
-            except FileNotFoundError:
-                print("Skipping Deep Dive: 'prompt_deepdive.md' not found.")
-            except subprocess.CalledProcessError as e:
-                print(f"Error during deep dive or issue creation: {e.stderr}")
-            except Exception as e:
-                print(f"Unexpected error creating migration issue: {e}")
-
-        # Chat-Nachricht um das Ticket ergänzen
-        if issue_url:
-            clean_output += f"\n🛠️ *Action Item:* Migration Guide recherchiert! Bitte abarbeiten: <{issue_url}|Ticket ansehen>"
         
-        # 6. Build payload for Google Chat
-        payload = {"text": clean_output}
-        data = json.dumps(payload).encode("utf-8")
+        # 6. Sende Begrüßung (nur beim allerersten Update des Tages)
+        if not any_updates_found:
+            send_gchat_message(webhook_url, "*Guten Morgen!* Hier sind die Release-Updates für diese Woche:")
+            any_updates_found = True
+            time.sleep(1)
 
-        # 7. Send to Google Chat
-        req = urllib.request.Request(
-            webhook_url,
-            data=data,
-            headers={"Content-Type": "application/json"}
-        )
+        # 7. Sende Release-Update an Google Chat
+        if send_gchat_message(webhook_url, clean_output):
+            print(f"Successfully sent {feed_url} to Google Chat.")
+            watermarks[feed_url] = current_time
         
-        try:
-            with urllib.request.urlopen(req) as response:
-                print(f"Successfully sent {feed_url} to Google Chat. Status: {response.status}")
-                # Update watermark ONLY on successful transmission
-                watermarks[feed_url] = current_time
-        except Exception as e:
-            print(f"Error during webhook call: {e}")
-
         time.sleep(2)
 
-    # 8. Save updated watermarks to disk
+    # 8. Spruch der Woche (nur generieren und senden, wenn es Updates gab)
+    if any_updates_found:
+        print("Generating daily quote...")
+        # Aktuelles Datum und Uhrzeit formatieren (z.B. "2026-07-31 12:37:14")
+        cache_buster_time = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+        
+        quote_prompt = (
+            f"Heute ist der {cache_buster_time}. "
+            "Generiere exakt EINEN neuen, noch nie dagewesenen depressiv-fatalistischen Einzeiler, "
+            "der am Ende einen positiven, motivierenden Spin hat. Im Stil eines Kalenderspruchs, "
+            "sehr weise und bedeutend, aber im Grunde auch wieder maximal nichtssagend und dadurch witzig."
+            "WICHTIG: Gib AUSSCHLIESSLICH diesen einen Satz aus (ohne 'Spruch der Woche' davor und ohne 'Viel Glück' danach). "
+            "Kein 'Thinking', keine Logs, keine Formatierung, keine Einleitung, absolut gar nichts anderes."
+        )
+        try:
+            quote_result = subprocess.run(
+                ["junie"],
+                input=quote_prompt,
+                capture_output=True,
+                text=True,
+                check=True,
+                timeout=60,
+                env=process_env
+            )
+            raw_quote = clean_ansi(quote_result.stdout.strip())
+            
+            # Sicherheitsfilter, falls die CLI doch Logs ausgibt
+            if "\n" in raw_quote:
+                raw_quote = raw_quote.split("\n")[-1].strip() 
+            if "TASK RESULT" in raw_quote:
+                raw_quote = raw_quote.split("TASK RESULT")[-1].strip()
+                
+            if raw_quote:
+                # Sicherstellen, dass der KI-Satz mit einem Punkt endet, falls er fehlt
+                if not raw_quote.endswith((".", "!", "?")):
+                    raw_quote += "."
+                    
+                # Hartes Formatting durch Python
+                final_quote_msg = f"Spruch der Woche: {raw_quote} Viel Glück!"
+                send_gchat_message(webhook_url, final_quote_msg)
+        except Exception as e:
+            print(f"Failed to generate quote: {e}")
+
+    # 9. Save updated watermarks to disk
     with open(watermarks_file, "w", encoding="utf-8") as f:
         json.dump(watermarks, f, indent=2)
 
