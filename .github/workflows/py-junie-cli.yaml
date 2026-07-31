@@ -1,7 +1,9 @@
 name: Juni CLI via Python
 on:
   schedule:
-    - cron: '30 5 * * 1'
+    - cron: '58 5 * * 1'
+      timezone: "Europe/Vienna"
+
   workflow_dispatch:
   push:
     branches:
