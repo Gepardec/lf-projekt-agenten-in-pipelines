@@ -1,6 +1,23 @@
 {
-  "https://github.com/argoproj/argo-cd/releases.atom": "2026-07-15T13:57:55.190146+00:00",
+  "https://github.com/argoproj/argo-cd/releases.atom": "2026-07-31T14:38:03.225906+00:00",
   "https://github.com/openbao/openbao/releases.atom": "2026-07-28T10:34:10.690507+00:00",
   "https://github.com/openshift/okd/releases.atom": "2026-07-28T10:35:36.481079+00:00",
-  "https://github.com/keycloak/keycloak/releases.atom": "2026-07-31T09:09:40.212790+00:00"
+  "https://github.com/keycloak/keycloak/releases.atom": "2026-07-31T09:09:40.212790+00:00",
+  "https://github.com/goharbor/harbor/releases.atom": "2026-07-31T14:46:43.303573+00:00",
+  "https://github.com/sonatype/nexus-public/releases.atom": "2026-07-31T14:48:17.183802+00:00",
+  "https://github.com/SonarSource/sonarqube/releases.atom": "2026-07-31T14:51:31.816526+00:00",
+  "https://github.com/open-telemetry/opentelemetry-collector/releases.atom": "2026-07-31T14:54:21.001791+00:00",
+  "https://github.com/hashicorp/vault/releases.atom": "2026-07-31T14:58:47.811625+00:00",
+  "https://github.com/containers/podman/releases.atom": "2026-07-31T15:01:55.773580+00:00",
+  "https://github.com/renovatebot/renovate/releases.atom": "2026-07-31T15:04:30.340552+00:00",
+  "https://github.com/actions/runner/releases.atom": "2026-07-31T15:06:21.412286+00:00",
+  "https://github.com/DependencyTrack/dependency-track/releases.atom": "2026-07-31T15:09:06.176452+00:00",
+  "https://github.com/gitlabhq/gitlabhq/releases.atom": "2026-07-31T15:11:03.828955+00:00",
+  "https://github.com/helm/helm/releases.atom": "2026-07-31T15:13:12.878722+00:00",
+  "https://github.com/prometheus/prometheus/releases.atom": "2026-07-31T15:14:23.468601+00:00",
+  "https://github.com/kubernetes-sigs/kustomize/releases.atom": "2026-07-31T15:18:13.123777+00:00",
+  "https://github.com/elastic/kibana/releases.atom": "2026-07-31T15:19:59.305116+00:00",
+  "https://github.com/grafana/tempo/releases.atom": "2026-07-31T15:22:44.584110+00:00",
+  "https://github.com/grafana/loki/releases.atom": "2026-07-31T15:24:00.121114+00:00",
+  "https://github.com/grafana/mimir/releases.atom": "2026-07-31T15:26:36.360975+00:00"
 }
