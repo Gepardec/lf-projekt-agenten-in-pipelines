@@ -206,7 +206,7 @@ def main():
                 capture_output=True,
                 text=True,
                 check=True,
-                timeout=60,
+                timeout=600,
                 env=process_env
             )
             raw_quote = clean_ansi(quote_result.stdout.strip())
