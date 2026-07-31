@@ -140,7 +140,8 @@ def main():
             print(f"junie error for {feed_url}: {e.stderr}")
             continue
         except Exception as ex:
-            raise RuntimeError(f"Unexpected error executing junie for {feed_url}: {ex}")
+            print(f"Unexpected error executing junie for {feed_url}. Moving to next project. Error: {ex}")
+            continue
 
         # 5. Clean output and evaluate empty state
         clean_output = clean_ansi(cli_output).strip()
