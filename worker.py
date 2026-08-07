@@ -28,12 +28,16 @@ def clean_ansi(text):
     ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
     return ansi_escape.sub('', text)
 
-def send_gchat_message(webhook_url, text):
+def send_gchat_message(webhook_url, text, thread_key=None):
     """Hilfsfunktion zum Senden von Nachrichten an Google Chat."""
     payload = {"text": text}
     data = json.dumps(payload).encode("utf-8")
+    url = webhook_url
+    if thread_key:
+        separator = "&" if "?" in url else "?"
+        url = f"{url}{separator}messageReplyOption=REPLY_MESSAGE_FALLBACK_TO_NEW_THREAD&threadKey={thread_key}"
     req = urllib.request.Request(
-        webhook_url,
+        url,
         data=data,
         headers={"Content-Type": "application/json"}
     )
@@ -95,7 +99,7 @@ def main():
         
     # Variable, um zu tracken, ob heute überhaupt Updates gefunden wurden
     any_updates_found = False
-
+    run_thread_key = f"releases-{datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d-%H%M%S')}"
     # 4. Process feeds
     for item in inventory:
         feed_url = item.get("feed_url")
@@ -180,12 +184,12 @@ def main():
         
         # 6. Sende Begrüßung (nur beim allerersten Update des Tages)
         if not any_updates_found:
-            send_gchat_message(webhook_url, "*Guten Morgen!* Hier sind die Release-Updates für diese Woche:")
+            send_gchat_message(webhook_url, "*Guten Morgen!* Hier sind die Release-Updates für diese Woche:", thread_key=run_thread_key)
             any_updates_found = True
             time.sleep(1)
 
         # 7. Sende Release-Update an Google Chat
-        if send_gchat_message(webhook_url, clean_output):
+        if send_gchat_message(webhook_url, clean_output, thread_key=run_thread_key):
             print(f"Successfully sent {feed_url} to Google Chat.")
             watermarks[feed_url] = current_time
         
@@ -233,7 +237,7 @@ Beispiel: <quote>Der Container ist zwar in einem CrashLoopBackOff gefangen, aber
                     
                 # Hartes Formatting durch Python
                 final_quote_msg = f"Spruch der Woche: {raw_quote} Viel Glück!"
-                send_gchat_message(webhook_url, final_quote_msg)
+                send_gchat_message(webhook_url, final_quote_msg, thread_key=run_thread_key)
         except Exception as e:
             print(f"Failed to generate quote: {e}")
 
