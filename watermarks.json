@@ -1,5 +1,5 @@
 {
-  "https://github.com/argoproj/argo-cd/releases.atom": "2026-08-07T10:37:02.533611+00:00",
+  "https://github.com/argoproj/argo-cd/releases.atom": "2026-08-10T04:29:57.934059+00:00",
   "https://github.com/openbao/openbao/releases.atom": "2026-07-28T10:34:10.690507+00:00",
   "https://github.com/openshift/okd/releases.atom": "2026-07-28T10:35:36.481079+00:00",
   "https://github.com/keycloak/keycloak/releases.atom": "2026-08-07T10:45:11.937926+00:00",
@@ -9,7 +9,7 @@
   "https://github.com/open-telemetry/opentelemetry-collector/releases.atom": "2026-08-07T10:55:32.231335+00:00",
   "https://github.com/hashicorp/vault/releases.atom": "2026-08-07T11:01:03.535050+00:00",
   "https://github.com/containers/podman/releases.atom": "2026-08-07T11:04:00.577922+00:00",
-  "https://github.com/renovatebot/renovate/releases.atom": "2026-08-07T11:05:27.225379+00:00",
+  "https://github.com/renovatebot/renovate/releases.atom": "2026-08-10T04:50:35.866058+00:00",
   "https://github.com/actions/runner/releases.atom": "2026-07-31T15:06:21.412286+00:00",
   "https://github.com/DependencyTrack/dependency-track/releases.atom": "2026-07-31T15:09:06.176452+00:00",
   "https://github.com/gitlabhq/gitlabhq/releases.atom": "2026-08-07T11:12:18.021867+00:00",
@@ -21,5 +21,6 @@
   "https://github.com/grafana/loki/releases.atom": "2026-08-07T11:24:19.962959+00:00",
   "https://github.com/grafana/mimir/releases.atom": "2026-08-07T11:25:34.436042+00:00",
   "https://github.com/ansible/ansible/releases.atom": "2026-08-07T10:58:53.297859+00:00",
-  "https://github.com/moby/moby/releases.atom": "2026-08-07T11:02:07.034657+00:00"
+  "https://github.com/moby/moby/releases.atom": "2026-08-07T11:02:07.034657+00:00",
+  "https://github.com/grafana/grafana/releases.atom": "2026-08-10T05:01:02.162065+00:00"
 }
