@@ -154,23 +154,26 @@ def main():
             print(f"No new releases for {feed_url} since {last_run}. Skipping webhook.")
             continue
 
-        # HÄRTERER FILTER: Wenn kein Paket-Emoji drin ist, ist es Agenten-Müll (Logs etc.)
-        if "📦" not in clean_output:
-            print(f"Invalid format (no 📦 detected) for {feed_url}. Assuming agent logs. Skipping.")
+        expected_header = f"📦 *{project_name}*"
+        if expected_header not in clean_output:
+            print(f"Invalid format (Header '{expected_header}' missing) for {feed_url}. Assuming agent logs. Skipping.")
             continue
 
-        # VORDERER CUT: Entfernt den Müll VOR dem Content
-        clean_output = "📦" + clean_output.split("📦", 1)[1]
+        # VORDERER CUT: Wir nehmen alles ab dem LETZTEN Vorkommen des Headers. 
+        # Das ignoriert sämtliches "Gedankenlesen" oder Zitate des Agenten davor komplett.
+        clean_output = expected_header + clean_output.rsplit(expected_header, 1)[-1]
     
         # AGGRESSIVER HINTERER CUT: Entfernt den Bash-Echo und Agenten-Log-Müll NACH dem Content
         lines = clean_output.split('\n')
         clean_lines = []
         for line in lines:
             stripped_line = line.strip()
-            # Sobald der Agent anfängt seine eigenen Befehle (EOF, ●, |) auszugeben, stoppen wir das Einlesen!
-            if stripped_line == "EOF" or stripped_line.startswith("●") or stripped_line.startswith("|") or "TASK RESULT" in stripped_line:
+            # Erweitert um "!" für Agenten-Kommandos (wie "! Running: git log")
+            if stripped_line == "EOF" or stripped_line.startswith("●") or stripped_line.startswith("|") or stripped_line.startswith("!") or "TASK RESULT" in stripped_line:
                 break
             clean_lines.append(line)
+            
+        clean_output = "\n".join(clean_lines).strip()
             
         clean_output = "\n".join(clean_lines).strip()
 
@@ -202,23 +205,30 @@ def main():
         
         quote_prompt = f"""Heute ist der {cache_buster_time}. 
 
-Du bist ein zynischer, aber meditativer Senior DevOps Engineer, der die täglichen Schmerzen der IT (Deployments, Pipelines, Kubernetes, YAML-Einrückungen, Bugs) mit absurder, pseudo-philosophischer Motivation erträgt.
+Du bist ein zynischer, aber meditativer Senior DevOps Engineer, der die täglichen Schmerzen der IT mit absurder, pseudo-philosophischer Motivation erträgt.
 
-Generiere exakt EINEN neuen, einzigartigen Einzeiler im Stil eines Kalenderspruchs für das Tech-Team. 
-Die Struktur ist immer: [Ein typisches IT/DevOps-Problem] + [Eine völlig übertriebene, fast schon esoterische positive Umdeutung].
+Generiere exakt EINEN neuen, einzigartigen Einzeiler im Stil eines Kalenderspruchs für das Tech-Team.
+
+THEMEN-VIELFALT (SEHR WICHTIG):
+Wähle für den heutigen Spruch ein völlig zufälliges, spezifisches Thema aus dem breiten IT-Alltag. 
+Nutze NICHT immer nur Git, Pipelines oder Kubernetes! 
+Gute alternative Themen: Legacy-Code, DNS-Caching-Probleme, fehlende Dokumentation, Jira-Ticket-Höllen, Zeitzonen-Bugs, Regex-Verzweiflung, Friday-Deployments, endlose Scrum-Meetings, veraltete NPM-Pakete, "Works on my machine"-Ausreden, unlesbare Fehlermeldungen, DB-Queries die Tage laufen oder Projektverantwortliche im Urlaub.
+
+STRUKTUR-VIELFALT:
+Das Grundprinzip ist: [IT-Problem] trifft auf [esoterische/buddhistische Erleuchtung].
+Aber variiere unbedingt den Satzbau! Nutze NICHT immer das Muster "X ist kein Y, sondern Z". 
+Erlaube dir auch rhetorische Fragen, kurze philosophische Thesen, Haikus oder meditative Aufforderungen.
 
 ABSOLUTES TABU (STRIKTE REGEL): 
-Mache NIEMALS Witze über Security-Themen, Datenlecks, offene S3-Buckets, Passwörter, Hacks oder Compliance. Das ist streng verboten! Beschränke dich AUSSCHLIESSLICH auf harmlose, operative Nervigkeiten (z.B. YAML-Einrückungen, langsame CI/CD-Pipelines, Git-Merge-Konflikte, Kubernetes-Pods im CrashLoop).
+Mache NIEMALS Witze über Security-Themen, Datenlecks, offene S3-Buckets, Passwörter, Hacks oder Compliance. Das ist streng verboten!
 
-Hier sind drei Beispiele für den gewünschten Ton (kopiere diese NICHT, sondern erfinde einen neuen):
-- "Der Container ist zwar in einem CrashLoopBackOff gefangen, aber unser agiler Geist skaliert heute grenzenlos."
-- "Ein gelöschter Terraform-State ist keine Katastrophe, sondern nur eine Einladung des Universums, die Infrastruktur noch bewusster neu zu denken."
-- "Pipeline-Rot ist die wärmste Farbe, denn sie erinnert uns daran, dass wir überhaupt noch etwas fühlen."
+Hier sind drei Beispiele für den Vibe (kopiere diese NICHT, sondern erfinde einen völlig neuen):
+- "Wer die fehlende Dokumentation des Legacy-Codes akzeptiert, liest den Quelltext nicht mit den Augen, sondern mit der Seele."
+- "Ein Regex, den du am nächsten Tag nicht mehr verstehst, ist keine technische Schuld, sondern ein Mantra der Vergänglichkeit."
+- "Warum weinen wir über DNS-Propagierung, wenn doch die Zeit selbst nur eine flüchtige Illusion im globalen Netzwerk ist?"
 
 WICHTIG (STRIKTE REGEL):
-Du musst deinen generierten Spruch ZWINGEND zwischen <quote> und </quote> XML-Tags setzen! Schreibe absolut keinen anderen Text außerhalb dieser Tags!
-Beispiel: <quote>Der Container ist zwar in einem CrashLoopBackOff gefangen, aber unser agiler Geist skaliert heute grenzenlos.</quote>"""
-        try:
+Du musst deinen generierten Spruch ZWINGEND zwischen <quote> und </quote> XML-Tags setzen! Schreibe absolut keinen anderen Text außerhalb dieser Tags!"""        try:
             # Timeout auf 180 Sekunden
             quote_output = call_junie(quote_prompt, process_env, timeout=180)
             raw_quote = clean_ansi(quote_output).strip()
