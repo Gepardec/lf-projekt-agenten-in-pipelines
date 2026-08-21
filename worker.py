@@ -228,7 +228,8 @@ Hier sind drei Beispiele für den Vibe (kopiere diese NICHT, sondern erfinde ein
 - "Warum weinen wir über DNS-Propagierung, wenn doch die Zeit selbst nur eine flüchtige Illusion im globalen Netzwerk ist?"
 
 WICHTIG (STRIKTE REGEL):
-Du musst deinen generierten Spruch ZWINGEND zwischen <quote> und </quote> XML-Tags setzen! Schreibe absolut keinen anderen Text außerhalb dieser Tags!"""        try:
+Du musst deinen generierten Spruch ZWINGEND zwischen <quote> und </quote> XML-Tags setzen! Schreibe absolut keinen anderen Text außerhalb dieser Tags!"""        
+        try:
             # Timeout auf 180 Sekunden
             quote_output = call_junie(quote_prompt, process_env, timeout=180)
             raw_quote = clean_ansi(quote_output).strip()
