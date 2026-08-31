@@ -1,7 +1,7 @@
 {
-  "https://github.com/argoproj/argo-cd/releases.atom": "2026-08-21T12:03:29.246418+00:00",
+  "https://github.com/argoproj/argo-cd/releases.atom": "2026-08-31T04:05:06.489356+00:00",
   "https://github.com/openbao/openbao/releases.atom": "2026-07-28T10:34:10.690507+00:00",
-  "https://github.com/openshift/okd/releases.atom": "2026-07-28T10:35:36.481079+00:00",
+  "https://github.com/openshift/okd/releases.atom": "2026-08-31T04:07:26.925382+00:00",
   "https://github.com/keycloak/keycloak/releases.atom": "2026-08-07T10:45:11.937926+00:00",
   "https://github.com/goharbor/harbor/releases.atom": "2026-07-31T14:46:43.303573+00:00",
   "https://github.com/sonatype/nexus-public/releases.atom": "2026-08-24T04:29:28.205876+00:00",
@@ -9,7 +9,7 @@
   "https://github.com/open-telemetry/opentelemetry-collector/releases.atom": "2026-08-24T04:33:53.458943+00:00",
   "https://github.com/hashicorp/vault/releases.atom": "2026-08-07T11:01:03.535050+00:00",
   "https://github.com/containers/podman/releases.atom": "2026-08-21T12:34:03.197469+00:00",
-  "https://github.com/renovatebot/renovate/releases.atom": "2026-08-07T11:05:27.225379+00:00",
+  "https://github.com/renovatebot/renovate/releases.atom": "2026-08-31T04:13:59.217207+00:00",
   "https://github.com/actions/runner/releases.atom": "2026-07-31T15:06:21.412286+00:00",
   "https://github.com/DependencyTrack/dependency-track/releases.atom": "2026-07-31T15:09:06.176452+00:00",
   "https://github.com/gitlabhq/gitlabhq/releases.atom": "2026-08-21T12:42:42.454247+00:00",
