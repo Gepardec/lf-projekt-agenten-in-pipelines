@@ -8,8 +8,8 @@
   "https://github.com/SonarSource/sonarqube/releases.atom": "2026-11-09T05:08:13.889457+00:00",
   "https://github.com/open-telemetry/opentelemetry-collector/releases.atom": "2026-11-16T05:07:41.694855+00:00",
   "https://github.com/hashicorp/vault/releases.atom": "2026-11-02T05:09:14.842443+00:00",
-  "https://github.com/containers/podman/releases.atom": "2026-08-21T12:34:03.197469+00:00",
-  "https://github.com/renovatebot/renovate/releases.atom": "2026-11-09T05:11:45.336901+00:00",
+  "https://github.com/containers/podman/releases.atom": "2026-11-23T05:06:40.098019+00:00",
+  "https://github.com/renovatebot/renovate/releases.atom": "2026-11-23T05:07:06.356718+00:00",
   "https://github.com/actions/runner/releases.atom": "2026-09-07T04:13:42.249441+00:00",
   "https://github.com/DependencyTrack/dependency-track/releases.atom": "2026-11-09T05:12:43.628758+00:00",
   "https://github.com/gitlabhq/gitlabhq/releases.atom": "2026-10-26T05:14:32.147219+00:00",
@@ -21,6 +21,6 @@
   "https://github.com/grafana/loki/releases.atom": "2026-10-19T04:18:47.497075+00:00",
   "https://github.com/grafana/mimir/releases.atom": "2026-11-16T05:16:39.932111+00:00",
   "https://github.com/ansible/ansible/releases.atom": "2026-11-09T05:09:49.859473+00:00",
-  "https://github.com/moby/moby/releases.atom": "2026-11-16T05:09:30.656963+00:00",
+  "https://github.com/moby/moby/releases.atom": "2026-11-23T05:06:14.157438+00:00",
   "https://github.com/grafana/grafana/releases.atom": "2026-11-16T05:13:49.429372+00:00"
 }
